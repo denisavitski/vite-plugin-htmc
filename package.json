@@ -1,0 +1,21 @@
+{
+  "name": "vite-plugin-htmc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:lib": "tsc && vite build",
+    "preview": "vite preview",
+    "build:pages": "tsc && vite build --mode pages"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.11.17"
+  },
+  "dependencies": {
+    "linkedom": "^0.16.8",
+    "vite": "^5.1.0",
+    "vite-plugin-dts": "^3.7.2"
+  }
+}
