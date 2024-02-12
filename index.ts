@@ -158,12 +158,10 @@ class HTMC {
   }
 
   #transform() {
-    let components: Array<HTMLElement> = [
-      ...this.#dom.document.querySelectorAll<HTMLElement>('component'),
-    ]
+    let components: Array<Element> = []
 
     do {
-      components = [...this.#dom.document.querySelectorAll<HTMLElement>('component')]
+      components = this.#findComponents()
 
       components.forEach((component) => {
         const name = component.getAttribute('name')!
@@ -346,6 +344,18 @@ class HTMC {
         }
       })
     })
+  }
+
+  #findComponents() {
+    const result: Array<Element> = [...this.#dom.document.querySelectorAll<Element>('component')]
+
+    this.#dom.document.querySelectorAll('template').forEach((template) => {
+      template.querySelectorAll('component').forEach((component) => {
+        result.push(component)
+      })
+    })
+
+    return result
   }
 
   #joinPaths(...paths: string[]) {
