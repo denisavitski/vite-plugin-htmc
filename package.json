@@ -1,8 +1,29 @@
 {
   "name": "vite-plugin-htmc",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/denisavitski/vite-plugin-htmc.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/denisavitski/vite-plugin-htmc/issues"
+  },
+  "homepage": "https://github.com/denisavitski/vite-plugin-htmc#readme",
   "type": "module",
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build:lib": "tsc && vite build",
