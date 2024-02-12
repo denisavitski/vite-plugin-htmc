@@ -15,7 +15,7 @@ class HTMC {
 
   #currentComponentHTMLFilePaths: Set<string> = new Set()
   #currentComponentFolderPaths: Set<string> = new Set()
-  #currentHTML: Window & typeof globalThis = null!
+  #dom: Window & typeof globalThis = null!
   #layout: string
 
   #bracketsRegExp = new RegExp('({[^}]*})', 'g')
@@ -140,12 +140,12 @@ class HTMC {
             html = this.#layout.replace('@', `<component name="${name}" />`)
           }
 
-          this.#currentHTML = parseHTML(html)
+          this.#dom = parseHTML(html)
 
           this.#transform()
           this.#resources()
 
-          const res = `<!doctype html>\n` + this.#currentHTML.document.documentElement.outerHTML
+          const res = `<!DOCTYPE html>\n` + this.#dom.document.documentElement.outerHTML
 
           return res
         },
@@ -159,11 +159,11 @@ class HTMC {
 
   #transform() {
     let components: Array<HTMLElement> = [
-      ...this.#currentHTML.document.querySelectorAll<HTMLElement>('component'),
+      ...this.#dom.document.querySelectorAll<HTMLElement>('component'),
     ]
 
     do {
-      components = [...this.#currentHTML.document.querySelectorAll<HTMLElement>('component')]
+      components = [...this.#dom.document.querySelectorAll<HTMLElement>('component')]
 
       components.forEach((component) => {
         const name = component.getAttribute('name')!
@@ -177,16 +177,23 @@ class HTMC {
             this.#currentComponentHTMLFilePaths.add(indexHTMLPath)
 
             const componentHTML = readFileSync(indexHTMLPath, { encoding: 'utf-8' })
-            const componentEmptyElement = this.#currentHTML.document.createElement<any>(null!)
-            componentEmptyElement.innerHTML = componentHTML
+            const componentEmptyElement = this.#dom.document.createElement(null!) as Element
+            componentEmptyElement.innerHTML = componentHTML.replace(/<!DOCTYPE\s+html>/i, '').trim()
 
             this.#attributes(component, componentEmptyElement)
 
-            const componentElement = componentEmptyElement.firstChild as HTMLElement
+            const componentFirstChild = componentEmptyElement.firstChild
 
-            this.#nest(component, componentElement)
+            if (componentFirstChild) {
+              if (componentFirstChild instanceof this.#dom.Element) {
+                this.#nest(component, componentFirstChild)
+                component.outerHTML = componentFirstChild.outerHTML
+              }
 
-            component.outerHTML = componentElement.outerHTML
+              component.outerHTML = componentFirstChild.textContent || ''
+            } else {
+              component.outerHTML = ''
+            }
           }
 
           const componentsNames = folderPath.split(this.#componentsPath)[1].slice(1, -1).split('/')
@@ -207,7 +214,7 @@ class HTMC {
     )
   }
 
-  #attributes(component: HTMLElement, componentElement: HTMLElement) {
+  #attributes(component: Element, componentElement: Element) {
     const allElements = componentElement.querySelectorAll<HTMLElement>('*')
 
     const elements: Array<{
@@ -276,7 +283,7 @@ class HTMC {
     })
   }
 
-  #nest(component: HTMLElement, componentElement: HTMLElement) {
+  #nest(component: Element, componentElement: Element) {
     let nestInserts = [...component.children].filter((element) => element.hasAttribute('nest'))
 
     nestInserts.forEach((insert) => {
@@ -306,7 +313,7 @@ class HTMC {
   }
 
   #resources() {
-    const document = this.#currentHTML.document
+    const document = this.#dom.document
 
     let head = document.querySelector('head')!
 
