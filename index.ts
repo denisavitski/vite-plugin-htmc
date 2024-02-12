@@ -18,7 +18,7 @@ class HTMC {
   #dom: Window & typeof globalThis = null!
   #layout: string
 
-  #bracketsRegExp = new RegExp('({[^}]*})', 'g')
+  #bracketsRegExp = new RegExp('({{[^}]*}})', 'g')
 
   constructor(options?: HTMCOptions) {
     this.#srcPath = normalizePath(resolve(process.cwd(), 'src'))
@@ -230,8 +230,8 @@ class HTMC {
       for (let j = 0; j < attributes.length; j++) {
         const attributeName = attributes[j].name
 
-        if (attributeName.startsWith('{') && attributeName.endsWith('}')) {
-          const normalAttributeName = attributeName.slice(1, -1)
+        if (attributeName.startsWith('{{') && attributeName.endsWith('}}')) {
+          const normalAttributeName = attributeName.slice(2, -2)
           const attributeValue = attributes[j].value
 
           element.removeAttribute(attributeName)
@@ -266,7 +266,7 @@ class HTMC {
     for (const attr of component.attributes) {
       if (attr.name !== 'name') {
         componentElement.innerHTML = componentElement.innerHTML.replace(
-          new RegExp(`{\\s*${attr.name}\\s*(?:\\|\\|\\s*([^}]*))?\\s*}`, 'g'),
+          new RegExp(`{{\\s*${attr.name}\\s*(?:\\|\\|\\s*([^}]*))?\\s*}}`, 'g'),
           attr.value
         )
       }
