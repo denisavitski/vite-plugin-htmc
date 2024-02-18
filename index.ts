@@ -136,7 +136,7 @@ class HTMC {
           const isComponent = ctx.originalUrl?.includes('/components/')
 
           if (isComponent) {
-            let name = ctx.originalUrl!.split('/components/')[1]
+            let name = ctx.originalUrl!.split('/components/')[1].split('?')[0].split('#')[0]
             html = this.#layout.replace('@', `<component name="${name}" />`)
           }
 
@@ -180,18 +180,16 @@ class HTMC {
 
             this.#attributes(component, componentEmptyElement)
 
-            const componentFirstChild = componentEmptyElement.firstChild
-
-            if (componentFirstChild) {
-              if (componentFirstChild instanceof this.#dom.Element) {
-                this.#nest(component, componentFirstChild)
-                component.outerHTML = componentFirstChild.outerHTML
+            const outerHTML = Array.from(componentEmptyElement.childNodes).reduce((p, c) => {
+              if (c instanceof this.#dom.Element) {
+                this.#nest(component, c)
+                return p + c.outerHTML
+              } else {
+                return p + (c.textContent || '')
               }
+            }, '')
 
-              component.outerHTML = componentFirstChild.textContent || ''
-            } else {
-              component.outerHTML = ''
-            }
+            component.outerHTML = outerHTML
           }
 
           const componentsNames = folderPath.split(this.#componentsPath)[1].slice(1, -1).split('/')
