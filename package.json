@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-htmc",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/denisavitski/vite-plugin-htmc.git"
@@ -31,12 +31,12 @@
     "build:pages": "tsc && vite build --mode pages"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "@types/node": "^20.11.17"
+    "typescript": "^5.4.2",
+    "@types/node": "^20.11.29"
   },
   "dependencies": {
-    "linkedom": "^0.16.8",
-    "vite": "^5.1.0",
-    "vite-plugin-dts": "^3.7.2"
+    "linkedom": "^0.16.10",
+    "vite": "^5.1.6",
+    "vite-plugin-dts": "^3.7.3"
   }
 }

@@ -119,6 +119,13 @@ class HTMC {
       },
 
       handleHotUpdate: ({ file, server }) => {
+        console.log('11111111')
+        this.#currentComponentHTMLFilePaths.forEach((file) => {
+          if (file.includes('details')) {
+            console.log(file)
+          }
+        })
+
         if (this.#currentComponentHTMLFilePaths.has(file)) {
           server.hot.send({
             type: 'full-reload',
@@ -130,6 +137,18 @@ class HTMC {
       transformIndexHtml: {
         order: 'pre',
         handler: async (html, ctx) => {
+          if (ctx.originalUrl) {
+            const splitted = ctx.originalUrl.split('.')
+
+            if (splitted.length > 1) {
+              const last = splitted[splitted.length - 1]
+
+              if (last !== 'html') {
+                return
+              }
+            }
+          }
+
           this.#currentComponentHTMLFilePaths.clear()
           this.#currentComponentFolderPaths.clear()
 
@@ -140,9 +159,12 @@ class HTMC {
             html = this.#layout.replace('@', `<component name="${name}" />`)
           }
 
+          this.#currentComponentHTMLFilePaths.add(ctx.filename)
+
           this.#dom = parseHTML(html)
 
           this.#transform()
+
           this.#resources()
 
           const res = `<!DOCTYPE html>\n` + this.#dom.document.documentElement.outerHTML
@@ -174,7 +196,9 @@ class HTMC {
           if (existsSync(indexHTMLPath)) {
             this.#currentComponentHTMLFilePaths.add(indexHTMLPath)
 
-            const componentHTML = readFileSync(indexHTMLPath, { encoding: 'utf-8' })
+            const componentHTML = readFileSync(indexHTMLPath, {
+              encoding: 'utf-8',
+            })
             const componentEmptyElement = this.#dom.document.createElement(null!) as Element
             componentEmptyElement.innerHTML = componentHTML.replace(/<!DOCTYPE\s+html>/i, '').trim()
 
