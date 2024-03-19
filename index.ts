@@ -119,13 +119,6 @@ class HTMC {
       },
 
       handleHotUpdate: ({ file, server }) => {
-        console.log('11111111')
-        this.#currentComponentHTMLFilePaths.forEach((file) => {
-          if (file.includes('details')) {
-            console.log(file)
-          }
-        })
-
         if (this.#currentComponentHTMLFilePaths.has(file)) {
           server.hot.send({
             type: 'full-reload',
