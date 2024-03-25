@@ -131,7 +131,7 @@ class HTMC {
         order: 'pre',
         handler: async (html, ctx) => {
           if (ctx.originalUrl) {
-            const splitted = ctx.originalUrl.split('.')
+            const splitted = ctx.originalUrl.split('?')[0].split('.')
 
             if (splitted.length > 1) {
               const last = splitted[splitted.length - 1]
