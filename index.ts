@@ -5,6 +5,8 @@ import { existsSync, readFileSync, readdir } from 'fs'
 
 export interface HTMCOptions {
   assets?: 'split' | 'merge' | undefined
+  srcFolderName?: string
+  distFolderName?: string
 }
 
 class HTMC {
@@ -21,7 +23,7 @@ class HTMC {
   #bracketsRegExp = new RegExp('({{[^}]*}})', 'g')
 
   constructor(options?: HTMCOptions) {
-    this.#srcPath = normalizePath(resolve(process.cwd(), 'src'))
+    this.#srcPath = normalizePath(resolve(process.cwd(), options?.srcFolderName || 'src'))
     this.#componentsPath = this.#joinPaths(this.#srcPath, 'components')
     this.#publicPath = this.#joinPaths(this.#srcPath, 'static')
 
@@ -87,7 +89,7 @@ class HTMC {
               ...pages,
             },
             output: {
-              dir: resolve(process.cwd(), 'dist'),
+              dir: resolve(process.cwd(), options?.distFolderName || 'dist'),
               chunkFileNames: () => {
                 return 'assets/[name].js'
               },
