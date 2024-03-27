@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { htmc } from './index'
+import { htmc } from './plugin'
 import dtsPlugin from 'vite-plugin-dts'
 
 export default defineConfig((env) => {
@@ -11,13 +11,17 @@ export default defineConfig((env) => {
         }),
       ],
       build: {
-        ssr: 'index.ts',
+        ssr: 'plugin.ts',
         outDir: 'lib',
       },
     }
   } else {
     return {
-      plugins: [htmc({})],
+      plugins: [
+        htmc({
+          srcFolderName: 'playground',
+        }),
+      ],
     }
   }
 })
