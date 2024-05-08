@@ -19,6 +19,7 @@ class HTMC {
   #currentComponentFolderPaths: Set<string> = new Set()
   #dom: Window & typeof globalThis = null!
   #layout: string
+  #layoutPath: string
 
   #bracketsRegExp = new RegExp('({{[^}]*}})', 'g')
 
@@ -26,10 +27,9 @@ class HTMC {
     this.#srcPath = normalizePath(resolve(process.cwd(), options?.srcFolderName || 'src'))
     this.#componentsPath = this.#joinPaths(this.#srcPath, 'components')
     this.#publicPath = this.#joinPaths(this.#srcPath, 'static')
+    this.#layoutPath = this.#joinPaths(this.#srcPath, 'components', 'layout', '/')
 
-    const layoutPath = this.#joinPaths(this.#srcPath, 'components', 'layout')
-
-    if (existsSync(layoutPath)) {
+    if (existsSync(this.#layoutPath)) {
       this.#layout = `
         <component name="layout">
          @
@@ -50,7 +50,7 @@ class HTMC {
     const pages: { [key: string]: string } = {}
 
     readdir(this.#srcPath, { recursive: true }, (_, files) => {
-      files.forEach((f) => {
+      files.forEach((f: any) => {
         if (typeof f === 'string') {
           if (!f.includes('components') && f.includes('html')) {
             pages[f] = this.#joinPaths(this.#srcPath, f)
@@ -154,6 +154,7 @@ class HTMC {
             html = this.#layout.replace('@', `<component name="${name}" />`)
           }
 
+          this.#currentComponentFolderPaths.add(this.#layoutPath)
           this.#currentComponentHTMLFilePaths.add(ctx.filename)
 
           this.#dom = parseHTML(html)
