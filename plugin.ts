@@ -3,10 +3,14 @@ import { join, resolve } from 'path'
 import { parseHTML } from 'linkedom'
 import { existsSync, readFileSync, readdir } from 'fs'
 
+export type HTMCOnTransformCallback = (code: string) => string
+
 export interface HTMCOptions {
   assets?: 'split' | 'merge' | undefined
   srcFolderName?: string
   distFolderName?: string
+  onHTMLTransform?: HTMCOnTransformCallback
+  onJSTransform?: HTMCOnTransformCallback
 }
 
 class HTMC {
@@ -23,11 +27,17 @@ class HTMC {
 
   #bracketsRegExp = new RegExp('({{[^}]*}})', 'g')
 
+  #onHTMLTransform: HTMCOnTransformCallback | undefined
+  #onJSTransform: HTMCOnTransformCallback | undefined
+
   constructor(options?: HTMCOptions) {
     this.#srcPath = normalizePath(resolve(process.cwd(), options?.srcFolderName || 'src'))
     this.#componentsPath = this.#joinPaths(this.#srcPath, 'components')
     this.#publicPath = this.#joinPaths(this.#srcPath, 'static')
     this.#layoutPath = this.#joinPaths(this.#srcPath, 'components', 'layout', '/')
+
+    this.#onHTMLTransform = options?.onHTMLTransform
+    this.#onJSTransform = options?.onJSTransform
 
     if (existsSync(this.#layoutPath)) {
       this.#layout = `
@@ -129,6 +139,12 @@ class HTMC {
         }
       },
 
+      transform: (e) => {
+        return {
+          code: this.#onJSTransform ? this.#onJSTransform(e) : e,
+        }
+      },
+
       transformIndexHtml: {
         order: 'pre',
         handler: async (html, ctx) => {
@@ -163,9 +179,11 @@ class HTMC {
 
           this.#resources()
 
-          const res = `<!DOCTYPE html>\n` + this.#dom.document.documentElement.outerHTML
+          const page = `<!DOCTYPE html>\n` + this.#dom.document.documentElement.outerHTML
 
-          return res
+          const endResult = this.#onHTMLTransform ? this.#onHTMLTransform(page) : page
+
+          return endResult
         },
       },
     }

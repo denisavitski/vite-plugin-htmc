@@ -1,1 +1,3 @@
-console.log('AA')
+const v = '/assets/vite.svg'
+
+console.log(v)
