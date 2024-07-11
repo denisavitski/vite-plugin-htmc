@@ -139,10 +139,13 @@ class HTMC {
         }
       },
 
-      transform: (e) => {
-        return {
-          code: this.#onTransform ? this.#onTransform(e) : e,
-        }
+      transform: {
+        order: 'pre',
+        handler: (e) => {
+          return {
+            code: this.#onTransform ? this.#onTransform(e) : e,
+          }
+        },
       },
 
       transformIndexHtml: {
@@ -219,11 +222,33 @@ class HTMC {
             this.#attributes(component, componentEmptyElement)
 
             const outerHTML = Array.from(componentEmptyElement.childNodes).reduce((p, c) => {
-              if (c instanceof this.#dom.Element) {
-                this.#nest(component, c)
-                return p + c.outerHTML
+              let node = c
+
+              if (c instanceof this.#dom.HTMLElement && c.tagName === 'TAG') {
+                const newTagName = c.getAttribute('-name') || 'div'
+                const replacement = this.#dom.document.createElement(newTagName)
+
+                for (let i = 0, l = c.attributes.length; i < l; ++i) {
+                  const nodeName = c.attributes.item(i)?.nodeName
+                  const nodeValue = c.attributes.item(i)?.nodeValue
+
+                  if (nodeName && nodeValue) {
+                    replacement.setAttribute(nodeName, nodeValue)
+                  }
+                }
+
+                replacement.removeAttribute('-name')
+
+                replacement.innerHTML = c.innerHTML
+
+                node = replacement
+              }
+
+              if (node instanceof this.#dom.Element) {
+                this.#nest(component, node)
+                return p + node.outerHTML
               } else {
-                return p + (c.textContent || '')
+                return p + (node.textContent || '')
               }
             }, '')
 
