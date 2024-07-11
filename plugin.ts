@@ -10,7 +10,7 @@ export interface HTMCOptions {
   srcFolderName?: string
   distFolderName?: string
   onHTMLTransform?: HTMCOnTransformCallback
-  onJSTransform?: HTMCOnTransformCallback
+  onTransform?: HTMCOnTransformCallback
 }
 
 class HTMC {
@@ -28,7 +28,7 @@ class HTMC {
   #bracketsRegExp = new RegExp('({{[^}]*}})', 'g')
 
   #onHTMLTransform: HTMCOnTransformCallback | undefined
-  #onJSTransform: HTMCOnTransformCallback | undefined
+  #onTransform: HTMCOnTransformCallback | undefined
 
   constructor(options?: HTMCOptions) {
     this.#srcPath = normalizePath(resolve(process.cwd(), options?.srcFolderName || 'src'))
@@ -37,7 +37,7 @@ class HTMC {
     this.#layoutPath = this.#joinPaths(this.#srcPath, 'components', 'layout', '/')
 
     this.#onHTMLTransform = options?.onHTMLTransform
-    this.#onJSTransform = options?.onJSTransform
+    this.#onTransform = options?.onTransform
 
     if (existsSync(this.#layoutPath)) {
       this.#layout = `
@@ -141,7 +141,7 @@ class HTMC {
 
       transform: (e) => {
         return {
-          code: this.#onJSTransform ? this.#onJSTransform(e) : e,
+          code: this.#onTransform ? this.#onTransform(e) : e,
         }
       },
 

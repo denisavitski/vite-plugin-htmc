@@ -20,6 +20,7 @@ export default defineConfig((env) => {
       plugins: [
         htmc({
           srcFolderName: 'playground',
+          assets: 'merge',
         }),
       ],
     }
