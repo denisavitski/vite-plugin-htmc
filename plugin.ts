@@ -229,12 +229,10 @@ class HTMC {
                 const replacement = this.#dom.document.createElement(newTagName)
 
                 for (let i = 0, l = c.attributes.length; i < l; ++i) {
-                  const nodeName = c.attributes.item(i)?.nodeName
-                  const nodeValue = c.attributes.item(i)?.nodeValue
+                  const name = c.attributes[i]!.name
+                  const value = c.attributes[i]!.value
 
-                  if (nodeName && nodeValue) {
-                    replacement.setAttribute(nodeName, nodeValue)
-                  }
+                  replacement.setAttribute(name, value)
                 }
 
                 replacement.removeAttribute('-name')
