@@ -16,5 +16,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client"]
   },
-  "include": ["plaground", "plugin.ts"]
+  "include": ["plugin.ts"]
 }
