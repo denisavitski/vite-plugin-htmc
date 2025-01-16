@@ -61,6 +61,7 @@ class HTMC {
 
     try {
       const files = readdirSync(this.#srcPath, { withFileTypes: true })
+
       files.forEach((file) => {
         if (file.isFile() && file.name.endsWith('.html') && !file.name.includes('components')) {
           const filePath = this.#joinPaths(this.#srcPath, file.name)
