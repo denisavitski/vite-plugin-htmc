@@ -1,7 +1,7 @@
 import { Plugin, normalizePath } from 'vite'
 import { join, resolve } from 'path'
 import { parseHTML } from 'linkedom'
-import { existsSync, readFileSync, readdir } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 
 export type HTMCOnTransformCallback = (code: string) => string
 
@@ -59,15 +59,18 @@ class HTMC {
 
     const pages: { [key: string]: string } = {}
 
-    readdir(this.#srcPath, { recursive: true }, (_, files) => {
-      files.forEach((f: any) => {
-        if (typeof f === 'string') {
-          if (!f.includes('components') && f.includes('html')) {
-            pages[f] = this.#joinPaths(this.#srcPath, f)
-          }
+    try {
+      const files = readdirSync(this.#srcPath, { withFileTypes: true })
+      files.forEach((file) => {
+        if (file.isFile() && file.name.endsWith('.html') && !file.name.includes('components')) {
+          const filePath = this.#joinPaths(this.#srcPath, file.name)
+          pages[file.name] = filePath
+          console.log(`Rollup input: ${file.name} -> ${filePath}`)
         }
       })
-    })
+    } catch (err) {
+      console.error(`Error reading directory ${this.#srcPath}:`, err)
+    }
 
     this.#plugin = {
       name: 'vite-plugin-htmc',
